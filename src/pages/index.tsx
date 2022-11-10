@@ -2,41 +2,44 @@ import { type NextPage } from "next";
 import Head from "next/head";
 import { useRef, useState } from "react";
 
-enum BUTTON_ACTIONS {
-  PREV,
-  NEXT,
-}
-
 interface Dot {
   x: number;
   y: number;
 }
 
 const Home: NextPage = () => {
-  const dotsRef = useRef<Dot[]>([]);
   const [dots, setDots] = useState<Dot[]>([]);
+  const [undoneDots, setUndoneDots] = useState<Dot[]>([]);
 
-  const handleButtonClick = (action: BUTTON_ACTIONS) => {
-    if (action === BUTTON_ACTIONS.PREV) {
-      const newDots = [...dots];
-      newDots.pop();
+  const handleUndo = () => {
+    const newDots = [...dots];
+    const undoneDot = newDots.pop();
+
+    if (undoneDot) {
+      setUndoneDots([...undoneDots, undoneDot]);
       setDots(newDots);
-    } else {
-      const nextDot = dotsRef.current[dots.length];
-      nextDot && setDots([...dots, nextDot]);
+    }
+  };
+
+  const handleRedo = () => {
+    const newUndoneDots = [...undoneDots];
+    const redoDot = newUndoneDots.pop();
+
+    if (redoDot) {
+      setUndoneDots(newUndoneDots);
+      setDots([...dots, redoDot]);
     }
   };
 
   const handleDocumentClick = ({ x, y }: Dot) => {
-    dotsRef.current = [
+    setDots([
       ...dots,
       {
         x,
         y,
       },
-    ];
-
-    setDots(dotsRef.current);
+    ]);
+    setUndoneDots([]);
   };
 
   return (
@@ -59,21 +62,21 @@ const Home: NextPage = () => {
             className="inline-block w-full rounded bg-violet-600 px-6 py-3 leading-6 text-white hover:bg-violet-500"
             onClick={(event) => {
               event.stopPropagation();
-              return handleButtonClick(BUTTON_ACTIONS.PREV);
+              return handleUndo();
             }}
             type="button"
           >
-            {"Remove"}
+            {"Undo"}
           </button>
           <button
             className="ml-2 inline-block w-full rounded  bg-violet-600 px-6 py-3 leading-6 text-white hover:bg-violet-500"
             onClick={(event) => {
               event.stopPropagation();
-              return handleButtonClick(BUTTON_ACTIONS.NEXT);
+              return handleRedo();
             }}
             type="button"
           >
-            {"Add"}
+            {"Redo"}
           </button>
         </div>
         {dots.map(({ x, y }, index) => {
