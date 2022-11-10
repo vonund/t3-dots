@@ -1,6 +1,6 @@
 import { type NextPage } from "next";
 import Head from "next/head";
-import { useRef, useState } from "react";
+import { useState } from "react";
 
 interface Dot {
   x: number;
@@ -15,20 +15,18 @@ const Home: NextPage = () => {
     const newDots = [...dots];
     const undoneDot = newDots.pop();
 
-    if (undoneDot) {
-      setUndoneDots([...undoneDots, undoneDot]);
-      setDots(newDots);
-    }
+    if (!undoneDot) return;
+    setUndoneDots([...undoneDots, undoneDot]);
+    setDots(newDots);
   };
 
   const handleRedo = () => {
-    const newUndoneDots = [...undoneDots];
-    const redoDot = newUndoneDots.pop();
+    const poppedDots = [...undoneDots];
+    const redoDot = poppedDots.pop();
 
-    if (redoDot) {
-      setUndoneDots(newUndoneDots);
-      setDots([...dots, redoDot]);
-    }
+    if (!redoDot) return;
+    setUndoneDots(poppedDots);
+    setDots([...dots, redoDot]);
   };
 
   const handleDocumentClick = ({ x, y }: Dot) => {
@@ -59,21 +57,23 @@ const Home: NextPage = () => {
         </h1>
         <div className="mx-auto mt-4 flex w-80 flex-nowrap">
           <button
-            className="inline-block w-full rounded bg-violet-600 px-6 py-3 leading-6 text-white hover:bg-violet-500"
+            className="inline-block w-full rounded bg-violet-600 px-6 py-3 leading-6 text-white hover:bg-violet-500 disabled:cursor-default disabled:bg-violet-800 disabled:text-violet-400"
             onClick={(event) => {
               event.stopPropagation();
               return handleUndo();
             }}
+            disabled={!dots.length}
             type="button"
           >
             {"Undo"}
           </button>
           <button
-            className="ml-2 inline-block w-full rounded  bg-violet-600 px-6 py-3 leading-6 text-white hover:bg-violet-500"
+            className="ml-2 inline-block w-full rounded  bg-violet-600 px-6 py-3 leading-6 text-white hover:bg-violet-500 disabled:cursor-default disabled:bg-violet-800 disabled:text-violet-400"
             onClick={(event) => {
               event.stopPropagation();
               return handleRedo();
             }}
+            disabled={!undoneDots.length}
             type="button"
           >
             {"Redo"}
